@@ -1,0 +1,136 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: developer
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: customer_code
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: customer_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_inn
+                  type: VARCHAR(12)
+              - column:
+                  name: customer_kpp
+                  type: VARCHAR(9)
+              - column:
+                  name: customer_legal_address
+                  type: VARCHAR(500)
+              - column:
+                  name: customer_postal_address
+                  type: VARCHAR(500)
+              - column:
+                  name: customer_email
+                  type: VARCHAR(100)
+              - column:
+                  name: customer_code_main
+                  type: VARCHAR(50)
+                  constraints:
+                    foreignKeyName: fk_customer_parent
+                    referencedTableName: customer
+                    referencedColumnNames: customer_code
+              - column:
+                  name: is_organization
+                  type: BOOLEAN
+                  defaultValue: false
+              - column:
+                  name: is_person
+                  type: BOOLEAN
+                  defaultValue: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        
+        - createTable:
+            tableName: lot
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: lot_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_code
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_lot_customer
+                    referencedTableName: customer
+                    referencedColumnNames: customer_code
+              - column:
+                  name: price
+                  type: NUMERIC(15, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: VARCHAR(3)
+                  defaultValue: "RUB"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nds_rate
+                  type: VARCHAR(20)
+                  defaultValue: "Без НДС"
+              - column:
+                  name: place_delivery
+                  type: VARCHAR(500)
+              - column:
+                  name: date_delivery
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        
+        - createIndex:
+            tableName: customer
+            columns:
+              - column:
+                  name: customer_code
+            indexName: idx_customer_code
+        
+        - createIndex:
+            tableName: customer
+            columns:
+              - column:
+                  name: customer_inn
+            indexName: idx_customer_inn
+        
+        - createIndex:
+            tableName: lot
+            columns:
+              - column:
+                  name: customer_code
+            indexName: idx_lot_customer_code
