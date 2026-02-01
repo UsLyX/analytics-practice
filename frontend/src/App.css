@@ -1,3 +1,10 @@
+* {
+  --mix-focus-color-one: transparent !important;
+  --mix-focus-color-two: transparent !important;
+  --mix-focus-animation: none !important;
+  --color-control-bg-focus: transparent !important;
+}
+
 .App {
   text-align: center;
 }
