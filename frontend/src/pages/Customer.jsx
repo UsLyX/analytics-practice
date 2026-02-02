@@ -6,6 +6,7 @@ import { Modal } from '@consta/uikit/Modal'
 import { Text } from '@consta/uikit/Text'
 import { TextField } from '@consta/uikit/TextField'
 import { Radio } from '@consta/uikit/Radio'
+import { Select } from '@consta/uikit/Select'
 import { IconAdd } from '@consta/icons/IconAdd'
 import { IconTrash } from '@consta/icons/IconTrash'
 import { IconEdit } from '@consta/icons/IconEdit'
@@ -124,32 +125,47 @@ const Customer = () => {
 		}
 	]
 
-  const initialFormData = {
-    customerCode: '',
-    customerName: '',
-    customerInn: '',
-    customerKpp: '',
-    customerLegalAddress: '',
-    customerPostalAddress: '',
-    customerEmail: '',
-    customerCodeMain: '',
-    isOrganization: '',
-    isPerson: '',
-  };
+	// форма для создания клиента
+	const initialFormData = {
+		customerCode: '',
+		customerName: '',
+		customerInn: '',
+		customerKpp: '',
+		customerLegalAddress: '',
+		customerPostalAddress: '',
+		customerEmail: '',
+		customerCodeMain: '',
+		isOrganization: '',
+		isPerson: ''
+	}
 
-	const [customers, setCustomers] = useState([])
-  const [formData, setFormData] = useState(initialFormData);
-  const [errors, setErrors] = useState({});
+	const [customers, setCustomers] = useState([]) // массив клиентов
+	const [formData, setFormData] = useState(initialFormData) // форма для создания клиента
+	const [errors, setErrors] = useState({}) // ошибки при заполнении формы создания клиента
+	const [selectedId, setSelectedId] = useState(null)
+	const [client, setClient] = useState({})
+	const [updateClient, setUpdateClient] = useState({})
 
-	const [createModalOpen, setCreateModalOpen] = useState(false)
-	const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-	const [selectedValue, setSelectedValue] = useState(null)
+	const [createModalOpen, setCreateModalOpen] = useState(false) // модалка создания
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false) // модалка удалиения
+	const [updateModalOpen, setUpdateModalOpen] = useState(false) // модалка удалиения
+	const [selectedValue, setSelectedValue] = useState(null) // выбранный для удаления клиент
 
+	{
+		/* удаление */
+	}
+
+	{
+		/* функция при нажатии на кнопку удаления */
+	}
 	const handleDeleteClick = row => {
 		setSelectedValue(row.id)
 		setDeleteModalOpen(true)
 	}
 
+	{
+		/* функция для удаления клиента */
+	}
 	const deleteCustomer = async id => {
 		await axios
 			.delete(`http://localhost:8080/customers/${id}`)
@@ -157,109 +173,211 @@ const Customer = () => {
 			.catch(e => console.log(e))
 	}
 
+	{
+		/* функция для подтверждения удаления */
+	}
 	const confirmDelete = async () => {
 		deleteCustomer(selectedValue)
 		setDeleteModalOpen(false)
 		setSelectedValue(null)
 	}
 
-  {/* создание */}
+	{
+		/* создание */
+	}
 
+	{
+		/* подтверждение создания */
+	}
 	const confirmCreate = async () => {
-    if (!formData.customerCode || !formData.customerCodeMain || !formData.customerName) {
-      alert('Заполните все обязательные поля (*)');
-      return;
-    }
-  
-    if (errors && Object.keys(errors).length > 0) {
-      Object.values(errors).forEach(error => {
-        if (error) alert(error);
-      });
-      return;
-    }
-  
-    setFormData(prev => {
-      const newIsOrganization = prev.isOrganization === "да";
-      const newIsPerson = prev.isPerson === "да";
-      
-      return {
-        ...prev,
-        isOrganization: newIsOrganization,
-        isPerson: newIsPerson
-      };
-    });
+		if (!formData.customerCode || !formData.customerCodeMain || !formData.customerName) {
+			alert('Заполните все обязательные поля (*)')
+			return
+		}
 
-  const dataToSend = {
-    ...formData,
-    isOrganization: formData.isOrganization === "да",
-    isPerson: formData.isPerson === "да"
-  };
+		if (errors && Object.keys(errors).length > 0) {
+			Object.values(errors).forEach(error => {
+				if (error) alert(error)
+			})
+			return
+		}
 
-  try {
-    await axios.post('http://localhost:8080/customers', dataToSend).then((_ => getCustomers())).catch(e => console.log(e));
-    
-    // Только после успешного запроса обновляем локальное состояние
-    setFormData(prev => ({
-      ...prev,
-      isOrganization: prev.isOrganization === "да",
-      isPerson: prev.isPerson === "да"
-    }));
-    
-    setCreateModalOpen(false);
-    
-    setFormData(initialFormData);
+		setFormData(prev => {
+			const newIsOrganization = prev.isOrganization === 'да'
+			const newIsPerson = prev.isPerson === 'да'
 
-    
-  } catch (error) {
-    console.error('Ошибка:', error);
-    alert('Ошибка при создании контрагента');
-  }
-}
-  const typeTextField = (title) => {
-    if(title == 'ИНН' || title == 'КПП') {
-      return 'number'
-    } else if(title == 'Электронная почта') {
-      return 'email'
-    } else {
-      return 'text'
-    }
-  }
+			return {
+				...prev,
+				isOrganization: newIsOrganization,
+				isPerson: newIsPerson
+			}
+		})
 
-  const handleFieldChange = (fieldName, value) => {
-        
-    let processedValue = value;
-    let error = '';
+		const dataToSend = {
+			...formData,
+			isOrganization: formData.isOrganization === 'да',
+			isPerson: formData.isPerson === 'да'
+		}
 
-    if (fieldName === 'customerInn') {
-      if (processedValue && processedValue.length !== 10 && processedValue.length !== 12) {
-        error = 'ИНН должен содержать 10 или 12 цифр';
-      }
-    }
-    else if (fieldName === 'customerKpp') {
-      if (processedValue && processedValue.length !== 9) {
-        error = 'КПП должен содержать 9 цифр';
-      }
-    } else if(fieldName === 'isOrganization' || fieldName == 'isPerson') {
-      if (processedValue != 'да' && processedValue !== 'нет') {
-        error = 'Ответьте "да" или "нет"';
-      }
-    } else {
-      processedValue = value;
-    }
-    setFormData(prev => ({ ...prev, [fieldName]: processedValue }));
+		try {
+			await axios
+				.post('http://localhost:8080/customers', dataToSend)
+				.then(_ => getCustomers())
+				.catch(e => console.log(e))
 
-    if (error) {
-      setErrors(prev => ({ ...prev, [fieldName]: error }));
-    } else if (errors[fieldName]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[fieldName];
-        return newErrors;
-      });
-    }
-  };
+			// Только после успешного запроса обновляем локальное состояние
+			setFormData(prev => ({
+				...prev,
+				isOrganization: prev.isOrganization === 'да',
+				isPerson: prev.isPerson === 'да'
+			}))
+
+			setCreateModalOpen(false)
+
+			setFormData(initialFormData)
+			setErrors({})
+		} catch (error) {
+			console.error('Ошибка:', error)
+			alert('Ошибка при создании контрагента')
+		}
+	}
+
+	{
+		/* типизация филда */
+	}
+	const typeTextField = title => {
+		if (title == 'ИНН' || title == 'КПП') {
+			return 'number'
+		} else if (title == 'Электронная почта') {
+			return 'email'
+		} else {
+			return 'text'
+		}
+	}
+
+	{
+		/* сбор ошибок при заполнении формы */
+	}
+	const handleFieldChange = (fieldName, value) => {
+		let processedValue = value
+		let error = ''
+
+		if (fieldName === 'customerInn') {
+			if (processedValue && processedValue.length !== 10 && processedValue.length !== 12) {
+				error = 'ИНН должен содержать 10 или 12 цифр'
+			}
+		} else if (fieldName === 'customerKpp') {
+			if (processedValue && processedValue.length !== 9) {
+				error = 'КПП должен содержать 9 цифр'
+			}
+		} else if (fieldName === 'isOrganization' || fieldName == 'isPerson') {
+			if (processedValue != 'да' && processedValue !== 'нет') {
+				error = 'Ответьте "да" или "нет"'
+			}
+		} else {
+			processedValue = value
+		}
+		setFormData(prev => ({ ...prev, [fieldName]: processedValue }))
+
+		if (error) {
+			setErrors(prev => ({ ...prev, [fieldName]: error }))
+		} else if (errors[fieldName]) {
+			setErrors(prev => {
+				const newErrors = { ...prev }
+				delete newErrors[fieldName]
+				return newErrors
+			})
+		}
+	}
 
 	const stringValue = selectedValue ? String(selectedValue) : null
+
+	{
+		/* обновление */
+	}
+
+  {/* поиск клиента из селекта */}
+	const findClient = selectedClient => {
+		const findCustomer =
+			selectedClient && customers.find(customer => customer.id === selectedClient.value)
+
+		if (findCustomer) {
+			const customerCopy = { ...findCustomer }
+
+			customerCopy.isOrganization = customerCopy.isOrganization ? 'да' : 'нет'
+			customerCopy.isPerson = customerCopy.isPerson ? 'да' : 'нет'
+
+			setClient(customerCopy)
+			setUpdateClient(customerCopy)
+		} else {
+			setClient(null)
+		}
+	}
+
+	const updateChange = (fieldName, value) => {
+		let processedValue = value
+		let error = ''
+
+		if (fieldName === 'customerInn') {
+			if (processedValue && processedValue.length !== 10 && processedValue.length !== 12) {
+				error = 'ИНН должен содержать 10 или 12 цифр'
+			}
+		} else if (fieldName === 'customerKpp') {
+			if (processedValue && processedValue.length !== 9) {
+				error = 'КПП должен содержать 9 цифр'
+			}
+		} else if (fieldName === 'isOrganization' || fieldName == 'isPerson') {
+			if (processedValue != 'да' && processedValue !== 'нет') {
+				error = 'Ответьте "да" или "нет"'
+			}
+		} else {
+			processedValue = value
+		}
+		setUpdateClient(prev => ({ ...prev, [fieldName]: processedValue }))
+
+		if (error) {
+			setErrors(prev => ({ ...prev, [fieldName]: error }))
+		} else if (errors[fieldName]) {
+			setErrors(prev => {
+				const newErrors = { ...prev }
+				delete newErrors[fieldName]
+				return newErrors
+			})
+		}
+	}
+
+  {/* после нажатия кнопки обновить */}
+	const confirmUpdate = async () => {
+		// сравнение объектов
+		const changedProperties = Object.keys(updateClient).reduce((acc, key) => {
+			if (updateClient[key] !== client[key]) {
+				acc[key] = updateClient[key]
+			}
+			return acc
+		}, {})
+
+		if (changedProperties.isOrganization !== undefined) {
+			changedProperties.isOrganization = changedProperties.isOrganization === 'да'
+		}
+
+		if (changedProperties.isPerson !== undefined) {
+			changedProperties.isPerson = changedProperties.isPerson === 'да'
+		}
+
+		await axios
+			.patch(`http://localhost:8080/customers/${client.id}`, changedProperties)
+			.then(_ => getCustomers())
+			.catch(e => console.log(e))
+
+		setSelectedId(null)
+		setErrors({})
+		setClient({})
+		setUpdateClient({})
+	}
+
+	{
+		/* получение клиентов */
+	}
 
 	const getCustomers = async () => {
 		await axios
@@ -272,8 +390,12 @@ const Customer = () => {
 
 	useEffect(() => {
 		getCustomers()
-
 	}, [])
+
+	useEffect(() => {
+		findClient(selectedId)
+	}, [selectedId])
+
 	return (
 		<>
 			<div
@@ -290,7 +412,12 @@ const Customer = () => {
 					onlyIcon
 					onClick={() => setCreateModalOpen(prev => !prev)}
 				/>
-				<Button label='Изменить' iconLeft={IconEdit} onlyIcon />
+				<Button
+					label='Изменить'
+					iconLeft={IconEdit}
+					onlyIcon
+					onClick={() => setUpdateModalOpen(prev => !prev)}
+				/>
 				<Button label='Удалить' iconLeft={IconTrash} onlyIcon onClick={handleDeleteClick} />
 			</div>
 			<Table
@@ -403,18 +530,27 @@ const Customer = () => {
 					</Text>
 				</div>
 
-        <div style={{padding: '0 20px', maxWidth: '400px'}}>
-          {columns.map(item => 
-            (<TextField key={item.accessor} 
-              value={formData.hasOwnProperty(item.accessor) ? formData[item.accessor] : ''} 
-              onChange={(value) => handleFieldChange(item.accessor, value)} 
-              label={item.accessor == 'isOrganization' || item.accessor == 'isPerson' ? `${item.title} (ответьте да или нет)` : item.title}
-              status={errors[item.accessor] ? 'alert' : undefined}
-              type={typeTextField(item.title)} 
-              size="s" />
-            )
-          )}
-        </div>
+				<div style={{ padding: '0 20px', maxWidth: '400px' }}>
+					{columns.map(item => (
+						<TextField
+							key={item.accessor}
+							value={
+								formData.hasOwnProperty(item.accessor)
+									? formData[item.accessor]
+									: ''
+							}
+							onChange={value => handleFieldChange(item.accessor, value)}
+							label={
+								item.accessor == 'isOrganization' || item.accessor == 'isPerson'
+									? `${item.title} (ответьте да или нет)`
+									: item.title
+							}
+							status={errors[item.accessor] ? 'alert' : undefined}
+							type={typeTextField(item.title)}
+							size='m'
+						/>
+					))}
+				</div>
 
 				<div
 					style={{
@@ -422,8 +558,8 @@ const Customer = () => {
 						justifyContent: 'flex-end',
 						gap: '12px',
 						marginTop: '24px',
-            paddingRight: '20px',
-            paddingBottom: '20px'
+						paddingRight: '20px',
+						paddingBottom: '20px'
 					}}
 				>
 					<Button
@@ -432,8 +568,8 @@ const Customer = () => {
 						view='ghost'
 						onClick={() => {
 							setCreateModalOpen(false)
-              setFormData(initialFormData)
-              setErrors({})
+							setFormData(initialFormData)
+							setErrors({})
 						}}
 					/>
 					<Button
@@ -451,7 +587,106 @@ const Customer = () => {
 							e.currentTarget.style.color = '#0091ff'
 							e.currentTarget.style.transform = 'scale(1)'
 						}}
-						//disabled={!selectedValue}
+					/>
+				</div>
+			</Modal>
+
+			{/* модальное окно для обновления */}
+			<Modal
+				isOpen={updateModalOpen}
+				hasOverlay
+				onClickOutside={() => setUpdateModalOpen(false)}
+				onEsc={() => setUpdateModalOpen(false)}
+			>
+				<div style={{ padding: '24px 20px 12px 20px', minWidth: '400px' }}>
+					<Text size='l' weight='semibold' style={{ marginBottom: '16px' }}>
+						Обновление клиента
+					</Text>
+				</div>
+
+				{/* Заголовок */}
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'space-between',
+						justifyContent: 'center',
+						gap: '10px',
+						marginBottom: '20px',
+						padding: '0 20px 12px 20px'
+					}}
+				>
+					<Select
+						items={customers.map(customer => ({
+							label: customer.customerCode,
+							value: customer.id
+						}))}
+						onChange={value => setSelectedId(value)}
+						value={selectedId}
+						placeholder='Выберите клиента для редактирования'
+					/>
+				</div>
+
+				<div style={{ padding: '0 20px', maxWidth: '400px' }}>
+					{columns.map(item =>
+						item.accessor != 'customerCode' && item.accessor != 'customerCodeMain' ? (
+							<TextField
+								key={item.accessor}
+								value={(updateClient && updateClient[item.accessor]) || ''}
+								onChange={value => updateChange(item.accessor, value)}
+								label={
+									item.accessor == 'isOrganization' || item.accessor == 'isPerson'
+										? `${item.title} (ответьте да или нет)`
+										: item.title
+								}
+								status={errors[item.accessor] ? 'alert' : undefined}
+								type={typeTextField(item.title)}
+								size='m'
+							/>
+						) : (
+							<></>
+						)
+					)}
+				</div>
+
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'flex-end',
+						gap: '12px',
+						marginTop: '24px',
+						paddingRight: '20px',
+						paddingBottom: '20px'
+					}}
+				>
+					<Button
+						label='Отмена'
+						size='s'
+						view='ghost'
+						onClick={() => {
+							setUpdateModalOpen(false)
+							setFormData(initialFormData)
+							setErrors({})
+              setClient({})
+              setUpdateClient({})
+              setSelectedId(null)
+						}}
+					/>
+					<Button
+						label='Обновить'
+						size='s'
+						view='alert'
+						onClick={confirmUpdate}
+						onMouseEnter={e => {
+							e.currentTarget.style.backgroundColor = '#0091ff'
+							e.currentTarget.style.color = 'white'
+							e.currentTarget.style.transform = 'scale(1.1)'
+						}}
+						onMouseLeave={e => {
+							e.currentTarget.style.backgroundColor = 'transparent'
+							e.currentTarget.style.color = '#0091ff'
+							e.currentTarget.style.transform = 'scale(1)'
+						}}
 					/>
 				</div>
 			</Modal>
